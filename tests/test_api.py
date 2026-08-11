@@ -17,6 +17,14 @@ def test_health_check():
     assert "model_loaded" in data
 
 
+def test_root_index_html():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "Radar" in response.text
+    assert "Transaction Risk Inspector" in response.text
+
+
+
 def test_score_normal_transaction():
     payload = {
         "transaction_id": "test_txn_001",

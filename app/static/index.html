@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radar — Real-Time Fraud Detection Engine</title>
+  <meta name="description" content="Stripe Radar Clone: Real-Time Fraud Detection Engine powered by Scikit-Learn Isolation Forest, Redis Sliding-Window Velocity Checks, and FastAPI.">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="#" class="brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title">Radar</span>
+          <span class="brand-badge">ML Engine</span>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <div class="system-status" id="systemStatus">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Checking System...</span>
+        </div>
+
+        <button class="btn-icon" id="themeToggle" title="Toggle Light/Dark Theme">
+          <svg id="moonIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg id="sunIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Area -->
+  <main class="main-content">
+    
+    <!-- Editorial Hero -->
+    <div class="hero">
+      <h1 class="hero-title">Transaction Risk Inspector</h1>
+      <p class="hero-subtitle">Evaluate transaction anomalies and sliding-window velocity metrics in real time.</p>
+    </div>
+
+    <!-- Minimalist Tab Navigation -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" id="tabInspectorBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Risk Inspector
+      </button>
+      <button class="tab-btn" id="tabStreamBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Live Stream Simulator
+      </button>
+    </div>
+
+    <!-- Inspector Panel -->
+    <div class="inspector-panel" id="inspectorPanel">
+
+      <!-- Quick Presets Bar -->
+      <div class="presets-container">
+        <div class="presets-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Quick Scenario Presets
+        </div>
+        <div class="presets-grid">
+          <button class="preset-chip" id="presetSafe">
+            <div class="preset-title">
+              <span style="color: var(--color-allow);">●</span> Safe Purchase
+            </div>
+            <div class="preset-desc">$42.50 • Standard velocity</div>
+          </button>
+
+          <button class="preset-chip" id="presetVelocity">
+            <div class="preset-title">
+              <span style="color: var(--color-review);">●</span> Rapid Velocity
+            </div>
+            <div class="preset-desc">$280.00 • High transaction frequency</div>
+          </button>
+
+          <button class="preset-chip" id="presetAnomaly">
+            <div class="preset-title">
+              <span style="color: var(--color-block);">●</span> Extreme Anomaly
+            </div>
+            <div class="preset-desc">$4,999.00 • Outlier PCA features</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Input Glass Card -->
+      <div class="card">
+        <form id="scoringForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="inputTxnId">Transaction ID</label>
+              <input type="text" id="inputTxnId" class="form-input mono" placeholder="txn_1029384" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputCardId">Card / Account ID</label>
+              <input type="text" id="inputCardId" class="form-input mono" placeholder="card_881923" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputAmount">Amount (USD $)</label>
+              <input type="number" id="inputAmount" class="form-input mono" step="0.01" min="0" placeholder="149.99" required>
+            </div>
+          </div>
+
+          <!-- Features Config -->
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <div class="feature-header">
+              <label class="form-label">PCA Features (V1..V28 Vector)</label>
+              <div class="feature-toggle-btns">
+                <button type="button" class="btn-mini active" id="btnFeatureNormal">Normal Baseline</button>
+                <button type="button" class="btn-mini" id="btnFeatureRandom">Generate Anomaly</button>
+              </div>
+            </div>
+            <textarea id="inputFeaturesJson" class="form-input mono" rows="3" style="resize: vertical;" placeholder='{"V1": -1.35, "V2": 0.42, ...}'></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btnSubmit">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Analyze Risk
+          </button>
+        </form>
+
+        <!-- Scoring Result Output -->
+        <div class="results-section" id="resultsSection">
+          <div class="results-header">
+            <div>
+              <span class="action-badge" id="actionBadge">ALLOW</span>
+            </div>
+            <div class="latency-tag" id="latencyTag">Latency: 0.0 ms</div>
+          </div>
+
+          <!-- Radial Gauge + Breakdown -->
+          <div class="score-overview">
+            <div class="gauge-wrapper">
+              <svg class="gauge-circle" width="110" height="110" viewBox="0 0 100 100">
+                <circle class="gauge-bg" cx="50" cy="50" r="45" stroke-width="8" fill="none" />
+                <circle class="gauge-meter" id="gaugeMeter" cx="50" cy="50" r="45" stroke-width="8" fill="none" />
+              </svg>
+              <div class="gauge-text">
+                <div class="gauge-value" id="gaugeValue">0</div>
+                <div class="gauge-label">Risk Score</div>
+              </div>
+            </div>
+
+            <div class="breakdown-list">
+              <!-- ML Score Bar -->
+              <div class="breakdown-item">
+                <div class="breakdown-meta">
+                  <span class="breakdown-name">Base ML Anomaly Score</span>
+                  <span class="breakdown-val" id="valModelScore">0.0 / 100</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" id="barModelScore" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Velocity Score Bar -->
+              <div class="breakdown-item">
+                <div class="breakdown-meta">
+                  <span class="breakdown-name">Velocity Penalty Score</span>
+                  <span class="breakdown-val" id="valVelocityScore">0.0 / 30</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" id="barVelocityScore" style="width: 0%; background-color: var(--color-review);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Risk Reasons -->
+          <div class="reasons-box">
+            <div class="reasons-title">Risk Flags & Reasons</div>
+            <div class="reasons-tags" id="reasonsTags">
+              <span class="reason-tag">None</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Stream Simulator Panel -->
+    <div class="stream-panel" id="streamPanel">
+      
+      <div class="stream-stats-bar">
+        <div class="stat-box">
+          <div class="stat-number" id="simTotalCount">0</div>
+          <div class="stat-label">Evaluated</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="color: var(--color-allow);" id="simAllowCount">0</div>
+          <div class="stat-label">Allowed</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="color: var(--color-review);" id="simReviewCount">0</div>
+          <div class="stat-label">Under Review</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" style="color: var(--color-block);" id="simBlockCount">0</div>
+          <div class="stat-label">Blocked</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div style="font-weight: 600; font-size: 0.9375rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span class="status-dot"></span> Real-Time Transaction Stream
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn-primary" id="btnStartSim" style="padding: 0.4rem 0.9rem; font-size: 0.8125rem;">Start Stream</button>
+            <button class="btn-icon" id="btnClearSim" title="Clear Stream Log"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="stream-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Txn ID</th>
+                <th>Card ID</th>
+                <th>Amount</th>
+                <th>Risk Score</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="streamTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Click "Start Stream" to simulate live transaction traffic...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Minimal Editorial Footer -->
+  <footer class="footer">
+    Radar Fraud Engine • Scikit-Learn Isolation Forest &amp; Redis Velocity
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
