@@ -1,0 +1,21 @@
+# Datasets and large files
+data/*.csv
+*.csv
+*.pkl
+*.joblib
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+.env
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
